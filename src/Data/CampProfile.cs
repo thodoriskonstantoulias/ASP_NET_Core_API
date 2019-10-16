@@ -11,7 +11,7 @@ namespace CoreCodeCamp.Data
     {
         public CampProfile()
         {
-            this.CreateMap<Camp, CampModel>();
+            this.CreateMap<Camp, CampModel>().ReverseMap();
         }
     }
 }
