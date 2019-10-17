@@ -90,7 +90,60 @@ namespace CoreCodeCamp.Controllers
             {
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
+        }
+
+        [HttpPut("{id:int}")]
+        public async Task<ActionResult<TalkModel>> Put(string moniker, int id, TalkModel model)
+        {
+            try
+            {
+                var talk = campRepository.GetTalkByMonikerAsync(moniker, id, true);
+                if (talk == null) return NotFound("Talk does not exist");
+                await mapper.Map(model, talk);
+                if (model.Speaker != null)
+                {
+                    var speaker = await campRepository.GetSpeakerAsync(model.Speaker.SpeakerId);
+                    //if (speaker != null)
+                    //{
+                    //    talk.Speaker = speaker;
+                    //}
+                }
+
+                if (await campRepository.SaveChangesAsync())
+                {
+                    return mapper.Map<TalkModel>(talk);
+                }
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
             return BadRequest();
+        }
+
+        [HttpDelete("{id:int}")]
+        public async Task<IActionResult> Delete(string moniker,int id)
+        {
+            try
+            {
+                var talk = campRepository.GetTalkByMonikerAsync(moniker, id, true);
+                if (talk == null) return NotFound("Talk does not exist");
+                campRepository.Delete(talk);
+
+                if (await campRepository.SaveChangesAsync())
+                {
+                    return Ok();
+                }
+                else
+                {
+                    return BadRequest("Failed to delete");
+                }
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
         }
     }
 }
