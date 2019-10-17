@@ -89,7 +89,7 @@ namespace CoreCodeCamp.Controllers
                 campRepository.Add(camp);
                 if (await campRepository.SaveChangesAsync())
                 {
-                    return Created($"api/camps/{camp.Moniker}", mapper.Map<CampModel>(camp));
+                    return Created(location, mapper.Map<CampModel>(camp));
                 }
             }
             catch (Exception)
@@ -97,7 +97,48 @@ namespace CoreCodeCamp.Controllers
                 return this.StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
             }
             return BadRequest();
+        }
 
+        [HttpPut("{moniker}")]
+        public async Task<ActionResult<CampModel>> Put(string moniker, CampModel model)
+        {
+            try
+            {
+                var existing = await campRepository.GetCampAsync(moniker);
+                if (existing == null) return NotFound("Not found moniker to update");
+                mapper.Map(model, existing);
+                if (await campRepository.SaveChangesAsync())
+                {
+                    return mapper.Map<CampModel>(existing);
+                }
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
+            return BadRequest();
+        }
+
+        [HttpDelete("{moniker}")]
+        public async Task<IActionResult> Delete(string moniker)
+        {
+            try
+            {
+                var existing = await campRepository.GetCampAsync(moniker);
+                if (existing == null) return NotFound("Not found moniker to delete");
+                campRepository.Delete(existing);
+                if (await campRepository.SaveChangesAsync())
+                {
+                    return Ok();
+                }
+            }
+            catch (Exception)
+            {
+                return this.StatusCode(StatusCodes.Status500InternalServerError, "Database Failure");
+            }
+
+            return BadRequest("Failed to delete");
         }
     }
 }
