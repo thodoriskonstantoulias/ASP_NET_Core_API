@@ -12,6 +12,8 @@ using Microsoft.AspNetCore.Routing;
 namespace CoreCodeCamp.Controllers
 {
     [Route("api/[controller]")]
+    [ApiVersion("1.0")]
+    [ApiVersion("1.1")]
     [ApiController]
     public class CampsController : ControllerBase
     {
